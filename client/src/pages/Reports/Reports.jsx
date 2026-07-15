@@ -1,0 +1,10 @@
+function Reports() {
+  return (
+    <div>
+      <h1>Reports & Analytics</h1>
+      <p>View reports and system analytics.</p>
+    </div>
+  );
+}
+
+export default Reports;

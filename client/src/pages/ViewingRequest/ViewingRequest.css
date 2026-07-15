@@ -1,0 +1,48 @@
+.viewing-page{
+    max-width:700px;
+    margin:50px auto;
+    padding:40px;
+    background:white;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+.viewing-page h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.viewing-page p{
+    text-align:center;
+    margin-bottom:30px;
+    color:#555;
+}
+
+.viewing-form{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.viewing-form input,
+.viewing-form select{
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:16px;
+}
+
+.viewing-form button{
+    padding:15px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:17px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.viewing-form button:hover{
+    background:#1d4ed8;
+}
