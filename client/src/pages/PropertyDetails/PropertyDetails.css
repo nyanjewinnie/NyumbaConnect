@@ -22,6 +22,7 @@
 .details-container{
     display:grid;
     grid-template-columns:1fr 1fr;
+    align-items:start;
     gap:40px;
     background:#fff;
     border-radius:15px;
@@ -31,8 +32,10 @@
 
 .details-image{
     width:100%;
-    height:550px;
+    height:500px;
     object-fit:cover;
+    display:block;
+    border-radius:15px;
 }
 
 .details-content{
@@ -84,12 +87,24 @@
 
 .details-buttons a,
 .details-buttons button{
-    padding:14px 22px;
+    flex:1;
+    min-width:180px;
+    height:50px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
     border:none;
     border-radius:8px;
+
     cursor:pointer;
     text-decoration:none;
+
     font-size:15px;
+    font-weight:600;
+
+    transition:.3s;
 }
 
 .call-btn{
@@ -190,16 +205,90 @@ border-radius:20px;
 
 }
 
-.map-btn {
-  background: #16a34a;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 8px;
-  text-decoration: none;
-  display: inline-block;
-  margin-top: 10px;
+.map-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#16a34a;
+    color:white;
+
+    text-decoration:none;
+
+    min-width:180px;
+    height:50px;
+
+    padding:0 24px;
+
+    border-radius:8px;
+
+    font-size:16px;
+    font-weight:600;
+
+    transition:.3s;
 }
 
-.map-btn:hover {
-  background: #15803d;
+.map-btn:hover{
+    background:#15803d;
+}
+
+.image-gallery {
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.image-gallery > img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:15px;
+}
+
+.gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.gallery-image{
+    width:100%;
+    height:420px;
+    object-fit:cover;
+    border-radius:15px;
+    transition:.3s;
+    cursor:pointer;
+}
+
+.gallery-image:hover{
+    transform:scale(1.03);
+}
+
+.amenities{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:20px 0;
+}
+
+.amenity{
+    background:#2563eb;
+    color:white;
+    padding:8px 15px;
+    border-radius:20px;
+    font-size:14px;
+}
+
+.details-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:25px;
+}
+
+.active-thumbnail {
+  border: 3px solid #2563eb;
+  transform: scale(1.05);
 }

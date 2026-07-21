@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
@@ -18,66 +19,62 @@ function Login() {
     });
   };
 
-  const demoUsers = [
-  {
-    email: "tenant@nyumbaconnect.com",
-    password: "tenant123",
-    role: "Tenant",
-  },
-  {
-    email: "landlord@nyumbaconnect.com",
-    password: "landlord123",
-    role: "Landlord",
-  },
-  {
-    email: "caretaker@nyumbaconnect.com",
-    password: "caretaker123",
-    role: "Caretaker",
-  },
-  {
-    email: "admin@nyumbaconnect.com",
-    password: "admin123",
-    role: "Admin",
-  },
-];
-
-  const handleLogin = (e) => {
+ const handleLogin = async (e) => {
   e.preventDefault();
 
-  const account = demoUsers.find(
-    (demo) =>
-      demo.email === user.email &&
-      demo.password === user.password &&
-      demo.role === user.role
-  );
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/users/login`,
+      {
+        email: user.email,
+        password: user.password,
+      }
+    );
 
-  if (!account) {
-    toast.error("Invalid email, password or role.");
-    return;
-  }
+    const loggedInUser = response.data.user;
 
-  localStorage.setItem("userRole", account.role);
-localStorage.setItem("isLoggedIn", "true");
+    // Check selected role
+    if (loggedInUser.role !== user.role) {
+      toast.error("Selected role does not match this account.");
+      return;
+    }
 
-  switch (account.role) {
-    case "Tenant":
-      navigate("/tenant");
-      break;
+    // Save login details
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("userRole", loggedInUser.role);
+    localStorage.setItem("user", JSON.stringify(loggedInUser));
 
-    case "Landlord":
-      navigate("/landlord");
-      break;
+    toast.success("Login successful 🎉");
 
-    case "Caretaker":
-      navigate("/caretaker");
-      break;
+    switch (loggedInUser.role) {
+      case "Tenant":
+        navigate("/tenant");
+        break;
 
-    case "Admin":
-      navigate("/admin");
-      break;
+      case "Landlord":
+        navigate("/landlord");
+        break;
 
-    default:
-      navigate("/");
+      case "Caretaker":
+        navigate("/caretaker");
+        break;
+
+      case "Admin":
+        navigate("/admin");
+        break;
+
+      default:
+        navigate("/");
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Invalid email or password."
+    );
   }
 };
 
@@ -126,18 +123,6 @@ localStorage.setItem("isLoggedIn", "true");
           </button>
 
         </form>
-
-        <div className="demo-users">
-  <h3>Demo Accounts</h3>
-
-  <p><strong>Tenant:</strong> tenant@nyumbaconnect.com / tenant123</p>
-
-  <p><strong>Landlord:</strong> landlord@nyumbaconnect.com / landlord123</p>
-
-  <p><strong>Caretaker:</strong> caretaker@nyumbaconnect.com / caretaker123</p>
-
-  <p><strong>Admin:</strong> admin@nyumbaconnect.com / admin123</p>
-</div>
 
       </div>
 

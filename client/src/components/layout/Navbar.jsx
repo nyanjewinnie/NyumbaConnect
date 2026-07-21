@@ -1,18 +1,26 @@
-
 import "./Navbar.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const userRole = localStorage.getItem("userRole");
+  
+
+  // Get logged-in user
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userName = user?.fullName || "User";
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("user");
+
+    toast.success("Logged out successfully 👋");
 
     setMenuOpen(false);
     navigate("/login");
@@ -35,7 +43,7 @@ function Navbar() {
 
       {isLoggedIn && (
         <div className="user-role">
-          Welcome, {userRole}
+          Welcome, {userName}
         </div>
       )}
 

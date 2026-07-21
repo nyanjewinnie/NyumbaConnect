@@ -1,36 +1,59 @@
 import "./Landlord.css";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { HouseContext } from "../../context/HouseContext";
+
 
 function Landlord() {
   const {
-    houses,
-    addHouse,
-    updateHouse,
-    deleteHouse,
-    viewingRequests,
-    approveViewingRequest,
-    declineViewingRequest,
-  } = useContext(HouseContext);
+  houses,
+  setHouses,
+  addHouse,
+  updateHouse,
+  deleteHouse,
+  viewingRequests,
+  setViewingRequests,
+  approveViewingRequest,
+  declineViewingRequest,
+} = useContext(HouseContext);
 
 
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
 
   const [newHouse, setNewHouse] = useState({
-    title: "",
-    image: "",
-    county: "",
-    location: "",
-    sublocation: "",
-    type: "",
-    rent: "",
-    deposit: "",
-    landlord: "",
-    phone: "",
-    status: "Available",
-  });
+  title: "",
+  image: "",
+  mapLink: "",
+  county: "",
+  location: "",
+  sublocation: "",
+  type: "",
+  rent: "",
+  deposit: "",
+  landlord: "",
+  phone: "",
+  amenities: "",
+  status: "Available",
+});
+
+useEffect(() => {
+  const fetchViewingRequests = async () => {
+    try {
+      const response = await axios.get(
+  `${import.meta.env.VITE_API_URL}/viewing-requests`
+);
+
+      setViewingRequests(response.data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchViewingRequests();
+}, []);
 
   const locations = {
     Nairobi: [
@@ -68,27 +91,76 @@ function Landlord() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
+  try {
     if (editingId) {
-      updateHouse({
-        id: editingId,
-        ...newHouse,
-      });
+  const propertyData = {
+    ...newHouse,
+    image: newHouse.image,
+    images: [newHouse.image],
+    mapLink: newHouse.mapLink,
+    amenities: newHouse.amenities
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== ""),
+  };
 
-      toast.success("Property updated successfully! ✏️");
-      setEditingId(null);
+  const response = await axios.put(
+    `${import.meta.env.VITE_API_URL}/houses/${editingId}`,
+    propertyData
+  );
 
-    } else {
-      addHouse(newHouse);
+  setHouses((prev) =>
+    prev.map((house) =>
+      house._id === editingId ? response.data : house
+    )
+  );
+
+  toast.success("Property updated successfully! ✏️");
+
+  setEditingId(null);
+
+} else {
+      const propertyData = {
+  code: `NC${Date.now().toString().slice(-4)}`,
+  title: newHouse.title,
+  type: newHouse.type,
+  county: newHouse.county,
+  location: newHouse.location,
+  sublocation: newHouse.sublocation,
+  rent: Number(newHouse.rent),
+  deposit: Number(newHouse.deposit),
+  landlord: newHouse.landlord,
+  phone: newHouse.phone,
+  mapLink: newHouse.mapLink,
+  status: newHouse.status,
+  image: newHouse.image,
+  images: [newHouse.image],
+  amenities: newHouse.amenities
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item !== ""),
+};
+console.log(propertyData);
+
+      const response = await axios.post(
+  `${import.meta.env.VITE_API_URL}/houses`,
+  propertyData
+);
+
+      // Update React state with the saved house from MongoDB
+      setHouses((prev) => [...prev, response.data]);
 
       toast.success("Property added successfully! 🏠");
     }
 
+    // Reset form
     setNewHouse({
       title: "",
       image: "",
+      mapLink: "",
       county: "",
       location: "",
       sublocation: "",
@@ -97,9 +169,15 @@ function Landlord() {
       deposit: "",
       landlord: "",
       phone: "",
+      amenities: "",
       status: "Available",
     });
-  };
+
+  } catch (error) {
+    console.error("Error saving property:", error);
+    toast.error("Failed to save property. Please try again.");
+  }
+};
 
   const filteredHouses = houses.filter((house) =>
   house.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -165,6 +243,15 @@ const occupiedProperties = houses.filter(
           onChange={handleChange}
           required
         />
+
+        <input
+  type="url"
+  name="mapLink"
+  placeholder="Google Maps Link"
+  value={newHouse.mapLink}
+  onChange={handleChange}
+  required
+/>
 
         <select
           name="county"
@@ -263,6 +350,14 @@ const occupiedProperties = houses.filter(
           required
         />
 
+        <input
+  type="text"
+  name="amenities"
+  placeholder="Amenities (e.g. Water, WiFi, Parking, CCTV)"
+  value={newHouse.amenities}
+  onChange={handleChange}
+/>
+
         <div className="form-actions">
 
   <button type="submit">
@@ -333,15 +428,14 @@ const occupiedProperties = houses.filter(
       <div className="dashboard-card" key={house.id}>
 
         <img
-          src={house.image}
-          alt={house.title}
-          style={{
-            width: "100%",
-            height: "180px",
-            objectFit: "cover",
-          }}
-        />
-
+  src={house.images?.[0] || house.image}
+  alt={house.title}
+  style={{
+    width: "100%",
+    height: "180px",
+    objectFit: "cover",
+  }}
+/>
         <h3>{house.title}</h3>
 
         <p><strong>Type:</strong> {house.type}</p>
@@ -357,7 +451,36 @@ const occupiedProperties = houses.filter(
           {Number(house.rent).toLocaleString()}
         </p>
 
-        <p><strong>Status:</strong> {house.status}</p>
+        <p><strong>Status:</strong></p>
+
+<select
+  value={house.status}
+  onChange={async (e) => {
+    try {
+      const response = await axios.put(
+  `${import.meta.env.VITE_API_URL}/houses/${house._id}`,
+  {
+    ...house,
+    status: e.target.value,
+  }
+);
+
+      setHouses((prev) =>
+        prev.map((h) =>
+          h._id === house._id ? response.data : h
+        )
+      );
+
+      toast.success("Status updated successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update status.");
+    }
+  }}
+>
+  <option value="Available">Available</option>
+  <option value="Occupied">Occupied</option>
+</select>
 
         <div className="property-actions">
 
@@ -365,20 +488,22 @@ const occupiedProperties = houses.filter(
             className="view-btn"
             onClick={() => {
               setNewHouse({
-                title: house.title,
-                image: house.image,
-                county: house.county,
-                location: house.location,
-                sublocation: house.sublocation,
-                type: house.type,
-                rent: house.rent,
-                deposit: house.deposit,
-                landlord: house.landlord,
-                phone: house.phone,
-                status: house.status,
-              });
+  title: house.title,
+  image: house.image || house.images?.[0] || "",
+  mapLink: house.mapLink || "",
+  county: house.county,
+  location: house.location,
+  sublocation: house.sublocation,
+  type: house.type,
+  rent: house.rent,
+  deposit: house.deposit,
+  landlord: house.landlord,
+  phone: house.phone,
+  amenities: house.amenities?.join(", ") || "",
+  status: house.status,
+});
 
-              setEditingId(house.id);
+              setEditingId(house._id);
 
               window.scrollTo({
                 top: 0,
@@ -391,7 +516,7 @@ const occupiedProperties = houses.filter(
 
           <button
             className="favorite-btn"
-            onClick={() => deleteHouse(house.id)}
+            onClick={() => deleteHouse(house._id)}
           >
             🗑 Delete
           </button>
@@ -424,7 +549,10 @@ const occupiedProperties = houses.filter(
 
           {viewingRequests.map((request) => (
 
-            <div className="dashboard-card" key={request.id}>
+  <div
+    className="dashboard-card"
+    key={request._id || request.id}
+  >
 
               <h3>{request.name}</h3>
 
@@ -438,14 +566,14 @@ const occupiedProperties = houses.filter(
 
               <button
                 className="whatsapp-btn"
-                onClick={() => approveViewingRequest(request.id)}
+                onClick={() => approveViewingRequest(request._id)}
               >
                 ✅ Approve
               </button>
 
               <button
                 className="favorite-btn"
-                onClick={() => declineViewingRequest(request.id)}
+                onClick={() => declineViewingRequest(request._id)}
               >
                 ❌ Decline
               </button>

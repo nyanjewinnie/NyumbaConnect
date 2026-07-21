@@ -1,4 +1,6 @@
-import { useContext } from "react";
+import "./Admin.css";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { HouseContext } from "../../context/HouseContext";
 
 function Admin() {
@@ -8,6 +10,92 @@ function Admin() {
     viewingRequests,
     notifications,
   } = useContext(HouseContext);
+
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+  fetchUsers();
+}, []);
+
+const fetchUsers = async () => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/users`
+    );
+
+    setUsers(response.data);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
+
+const updateStatus = async (id, status) => {
+  try {
+    await axios.put(
+      `${import.meta.env.VITE_API_URL}/viewing-requests/${id}`,
+      {
+        status,
+      }
+    );
+
+    // Refresh the viewing requests
+    window.location.reload();
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const deleteUser = async (id) => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this user?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await axios.delete(
+      `${import.meta.env.VITE_API_URL}/users/${id}`
+    );
+
+    alert("User deleted successfully.");
+
+    fetchUsers();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete user.");
+  }
+
+};
+
+const deleteHouse = async (id) => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this property?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await axios.delete(
+      `${import.meta.env.VITE_API_URL}/houses/${id}`
+    );
+
+    alert("Property deleted successfully.");
+
+    // Refresh the page
+    window.location.reload();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete property.");
+  }
+
+};
 
   const availableHouses = houses.filter(
     (house) => house.status === "Available"
@@ -50,6 +138,11 @@ function Admin() {
           <h2>🏠 Total Properties</h2>
           <h1>{houses.length}</h1>
         </div>
+
+        <div className="dashboard-card total-card">
+  <h2>👥 Total Users</h2>
+  <h1>{users.length}</h1>
+</div>
 
         <div className="dashboard-card available-card">
           <h2>✅ Available</h2>
@@ -109,13 +202,14 @@ function Admin() {
         <thead>
 
           <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>County</th>
-            <th>Location</th>
-            <th>Rent</th>
-            <th>Status</th>
-          </tr>
+  <th>Code</th>
+  <th>Title</th>
+  <th>County</th>
+  <th>Location</th>
+  <th>Rent</th>
+  <th>Status</th>
+  <th>Action</th>
+</tr>
 
         </thead>
 
@@ -123,7 +217,7 @@ function Admin() {
 
           {houses.map((house) => (
 
-            <tr key={house.id}>
+            <tr key={house._id || house.id}>
 
               <td>{house.code}</td>
 
@@ -151,6 +245,15 @@ function Admin() {
 
               </td>
 
+              <td>
+  <button
+    className="delete-btn"
+    onClick={() => deleteHouse(house._id)}
+  >
+    Delete
+  </button>
+</td>
+
             </tr>
 
           ))}
@@ -176,11 +279,12 @@ function Admin() {
           <thead>
 
             <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
+  <th>Name</th>
+  <th>Phone</th>
+  <th>Date</th>
+  <th>Status</th>
+  <th>Action</th>
+</tr>
 
           </thead>
 
@@ -188,7 +292,7 @@ function Admin() {
 
             {viewingRequests.map((request) => (
 
-              <tr key={request.id}>
+              <tr key={request._id || request.id}>
 
                 <td>{request.name}</td>
 
@@ -212,6 +316,26 @@ function Admin() {
 
                 </td>
 
+                <td>
+  <div className="action-buttons">
+
+    <button
+      className="approve-btn"
+      onClick={() => updateStatus(request._id, "Approved")}
+    >
+      Approve
+    </button>
+
+    <button
+      className="decline-btn"
+      onClick={() => updateStatus(request._id, "Declined")}
+    >
+      Decline
+    </button>
+
+  </div>
+</td>
+
               </tr>
 
             ))}
@@ -221,6 +345,67 @@ function Admin() {
         </table>
 
       )}
+
+      <hr />
+
+<h2>👥 Registered Users</h2>
+
+{users.length === 0 ? (
+
+  <p>No users found.</p>
+
+) : (
+
+  <table className="admin-table">
+
+    <thead>
+      <tr>
+  <th>Full Name</th>
+  <th>Email</th>
+  <th>Phone</th>
+  <th>Role</th>
+  <th>Action</th>
+</tr>
+    </thead>
+
+    <tbody>
+
+      {users.map((user) => (
+
+        <tr key={user._id}>
+
+  <td>{user.fullName}</td>
+
+  <td>{user.email}</td>
+
+  <td>{user.phone}</td>
+
+  <td>{user.role}</td>
+
+  <td>
+  {user.role !== "Admin" ? (
+    <button
+      className="delete-btn"
+      onClick={() => deleteUser(user._id)}
+    >
+      Delete
+    </button>
+  ) : (
+    <span style={{ color: "green", fontWeight: "bold" }}>
+      Protected
+    </span>
+  )}
+</td>
+
+</tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+)}
 
     </section>
   );

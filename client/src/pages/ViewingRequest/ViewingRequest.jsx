@@ -1,15 +1,34 @@
 import "./ViewingRequest.css";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { HouseContext } from "../../context/HouseContext";
 
 function ViewingRequest() {
   const { houses, addViewingRequest } = useContext(HouseContext);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (isLoggedIn !== "true") {
+    toast.info("Please login to request a viewing first 🔐");
+
+    navigate("/login");
+  }
+}, [navigate]);
+
+  // Property passed from PropertyDetails
+  const selectedProperty = location.state?.property || "";
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    property: "",
+    property: selectedProperty,
     date: "",
   });
 
@@ -20,27 +39,53 @@ function ViewingRequest() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    addViewingRequest({
-      id: Date.now(),
-      ...formData,
-      status: "Pending",
-    });
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-    toast.success("Viewing request submitted successfully! 🎉");
+const response = await axios.post(
+  `${import.meta.env.VITE_API_URL}/viewing-requests`,
+  {
+    ...formData,
+    tenant: user._id,
+    status: "Pending",
+  }
+);
 
-    setFormData({
-      name: "",
-      phone: "",
-      property: "",
-      date: "",
-    });
+      addViewingRequest(response.data);
+
+      toast.success("Viewing request submitted successfully! 🎉");
+
+      setFormData({
+        name: "",
+        phone: "",
+        property: selectedProperty,
+        date: "",
+      });
+
+      setTimeout(() => {
+        navigate(-1);
+      }, 1500);
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to submit viewing request.");
+    }
   };
 
   return (
     <section className="viewing-page">
+
+      <div className="back-container">
+        <button
+          className="back-btn"
+          onClick={() => navigate(-1)}
+        >
+          <FaArrowLeft /> Back
+        </button>
+      </div>
 
       <h1>Request a House Viewing</h1>
 
@@ -77,19 +122,16 @@ function ViewingRequest() {
           onChange={handleChange}
           required
         >
-          <option value="">
-            Select Property
-          </option>
+          <option value="">Select Property</option>
 
           {houses.map((house) => (
             <option
-              key={house.id}
+              key={house._id || house.id}
               value={house.title}
             >
               {house.title}
             </option>
           ))}
-
         </select>
 
         <input

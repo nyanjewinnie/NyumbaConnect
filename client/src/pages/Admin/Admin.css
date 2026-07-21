@@ -27,27 +27,39 @@
 
 .dashboard-card {
   color: white;
-  border-radius: 12px;
-  padding: 25px;
+  border-radius: 14px;
+  padding: 30px 20px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  transition: 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+
+  min-height: 150px;
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-card h2 {
+  color: white;
   font-size: 18px;
-  margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
 .dashboard-card h1 {
   color: white;
-  font-size: 34px;
+  font-size: 40px;
+  font-weight: bold;
   margin: 0;
 }
+
 
 /* ================= CARD COLORS ================= */
 
@@ -170,4 +182,51 @@
     overflow-x: auto;
     white-space: nowrap;
   }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.approve-btn,
+.decline-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+}
+
+.approve-btn {
+  background-color: green;
+}
+
+.decline-btn {
+  background-color: red;
+}
+
+.approve-btn:hover {
+  background-color: darkgreen;
+}
+
+.decline-btn:hover {
+  background-color: darkred;
+}
+
+.delete-btn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.delete-btn:hover {
+  background-color: #b91c1c;
 }

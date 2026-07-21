@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Register() {
   const navigate = useNavigate();
@@ -22,17 +23,61 @@ function Register() {
     });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (
+  !user.fullName ||
+  !user.email ||
+  !user.phone ||
+  !user.county ||
+  !user.password
+) {
+  toast.error("Please fill in all required fields.");
+  return;
+}
 
     if (user.password !== user.confirmPassword) {
       toast.error("Passwords do not match ❌");
       return;
     }
 
-    toast.success("Registration successful 🎉");
+    try {
+      await axios.post(
+  `${import.meta.env.VITE_API_URL}/users/register`,
+        {
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          password: user.password,
+          role: user.role,
+        }
+      );
 
-    navigate("/login");
+      toast.success("Registration successful 🎉");
+
+      setUser({
+        fullName: "",
+        email: "",
+        phone: "",
+        county: "",
+        role: "Tenant",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+
+    } catch (error) {
+      console.error(error);
+
+      toast.error(
+        error.response?.data?.message ||
+        "Registration failed."
+      );
+    }
   };
 
   return (

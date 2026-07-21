@@ -149,32 +149,38 @@ function Home() {
         </p>
 
         <div className="property-grid">
-          {houses.slice(0, 3).map((house) => (
-            <div className="property-card" key={house.id}>
-              <img src={house.image} alt={house.type} />
+  {houses.slice(0, 3).map((house) => (
+    <div
+      className="property-card"
+      key={house._id || house.id}
+    >
+      <img
+        src={house.images?.[0] || house.image}
+        alt={house.type}
+      />
 
-              <div className="property-details">
-                <h3>{house.title}</h3>
+      <div className="property-details">
+        <h3>{house.title}</h3>
 
-                <p>
-                  <strong>Location:</strong> {house.location}
-                </p>
+        <p>
+          <strong>Location:</strong> {house.location}
+        </p>
 
-                <p>
-                  <strong>Rent:</strong> KSh {house.rent}
-                </p>
+        <p>
+          <strong>Rent:</strong> KSh {house.rent}
+        </p>
 
-                <p>
-                  <strong>Status:</strong> {house.status}
-                </p>
+        <p>
+          <strong>Status:</strong> {house.status}
+        </p>
 
-                <Link to={`/property/${house.id}`}>
-                  <button>View Details</button>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Link to={`/property/${house._id || house.id}`}>
+          <button>View Details</button>
+        </Link>
+      </div>
+    </div>
+  ))}
+</div>
       </section>
 
       {/* Popular Locations */}

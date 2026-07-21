@@ -1,11 +1,13 @@
 import "./Properties.css";
 import { useContext, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { HouseContext } from "../../context/HouseContext";
 
 function Properties() {
   const { houses, favorites, setFavorites } = useContext(HouseContext);
+
+  const navigate = useNavigate();
 
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -57,19 +59,31 @@ function Properties() {
     return results;
   }, [houses, category, county, search, sortBy]);
 
-  const addToFavorites = (house) => {
-    const exists = favorites.find(
-      (item) => item.id === house.id
+const addToFavorites = (house) => {
+  const isLoggedIn =
+    localStorage.getItem("isLoggedIn") === "true";
+
+  if (!isLoggedIn) {
+    toast.info(
+      "Please login or create an account to save favorite properties."
     );
 
-    if (exists) {
-      toast.info("House is already in your favorites ❤️");
-      return;
-    }
+    navigate("/login");
+    return;
+  }
 
-    setFavorites([...favorites, house]);
-    toast.success("House added to favorites ❤️");
-  };
+  const exists = favorites.find(
+    (item) => item._id === house._id
+  );
+
+  if (exists) {
+    toast.info("House is already in your favorites ❤️");
+    return;
+  }
+
+  setFavorites([...favorites, house]);
+  toast.success("House added to favorites ❤️");
+};
 
   return (
     <section className="properties-page">
@@ -189,18 +203,19 @@ function Properties() {
           filteredHouses.map((house) => (
 
             <div
-              className="property-card"
-              key={house.id}
-            >
+  className="property-card"
+  key={house._id}
+>
 
               <div className="status-badge">
                 {house.status}
               </div>
 
-              <img
-                src={house.image}
-                alt={house.title}
-              />
+            <img
+  src={house.images?.[0] || house.image}
+  alt={house.title}
+  className="property-image"
+/>
 
               <div className="property-info">
 
@@ -276,21 +291,38 @@ function Properties() {
 
                 <div className="property-actions">
 
-                  <Link to="/viewing-request">
-                    <button className="view-btn">
-                      📅 Request Viewing
-                    </button>
-                  </Link>
+  <button
+    className="view-btn"
+    onClick={() => {
+      const isLoggedIn =
+        localStorage.getItem("isLoggedIn") === "true";
 
-                  <Link
-                    to={`/property/${house.id}`}
-                  >
-                    <button className="email-btn">
-                      👁 View Details
-                    </button>
-                  </Link>
+      if (!isLoggedIn) {
+        toast.info(
+          "Please login or create an account to request a property viewing."
+        );
 
-                </div>
+        navigate("/login");
+        return;
+      }
+
+      navigate("/viewing-request", {
+        state: {
+          property: house.title,
+        },
+      });
+    }}
+  >
+    📅 Request Viewing
+  </button>
+
+  <Link to={`/property/${house._id}`}>
+    <button className="email-btn">
+      👁 View Details
+    </button>
+  </Link>
+
+</div>
 
               </div>
 

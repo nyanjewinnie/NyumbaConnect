@@ -1,10 +1,12 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { HouseContext } from "../../context/HouseContext";
 import "./VacancyStatus.css";
 
 function VacancyStatus() {
 
   const { houses } = useContext(HouseContext);
+  const [filter, setFilter] = useState("All");
 
 
   const availableHouses = houses.filter(
@@ -16,6 +18,11 @@ function VacancyStatus() {
     (house) => house.status === "Occupied"
   );
 
+  const filteredHouses =
+  filter === "All"
+    ? houses
+    : houses.filter((house) => house.status === filter);
+
 
   return (
 
@@ -25,129 +32,107 @@ function VacancyStatus() {
         House Vacancy Status
       </h1>
 
+      <div className="vacancy-summary">
 
-      {/* Available Houses */}
+        <div className="filter-buttons">
 
-      <h2 className="available-title">
-        🟢 Available Houses
-      </h2>
+  <button
+    className={filter === "All" ? "active" : ""}
+    onClick={() => setFilter("All")}
+  >
+    All Houses
+  </button>
 
+  <button
+    className={filter === "Available" ? "active" : ""}
+    onClick={() => setFilter("Available")}
+  >
+    Available
+  </button>
 
-      <div className="vacancy-grid">
+  <button
+    className={filter === "Occupied" ? "active" : ""}
+    onClick={() => setFilter("Occupied")}
+  >
+    Occupied
+  </button>
 
+</div>
 
-        {availableHouses.map((house)=>(
+  <div className="summary-card">
+    <h3>{houses.length}</h3>
+    <p>Total Houses</p>
+  </div>
 
+  <div className="summary-card available-card">
+    <h3>{availableHouses.length}</h3>
+    <p>Available</p>
+  </div>
 
-          <div 
-            className="vacancy-card"
-            key={house.id}
-          >
+  <div className="summary-card occupied-card">
+    <h3>{occupiedHouses.length}</h3>
+    <p>Occupied</p>
+  </div>
 
+</div>
 
-            <img
-              src={house.image}
-              alt={house.type}
-            />
+<div className="vacancy-grid">
 
+  {filteredHouses.map((house) => (
 
-            <h3>
-              {house.type}
-            </h3>
+    <div
+      className="vacancy-card"
+      key={house._id || house.id}
+    >
 
+      <img
+        src={house.images?.[0] || house.image}
+        alt={house.title}
+      />
 
-            <p>
-              <strong>Location:</strong> {house.location}
-            </p>
+      <h3>{house.title}</h3>
 
+      <p>
+        <strong>Location:</strong> {house.location}
+      </p>
 
-            <p>
-              <strong>Rent:</strong> {house.rent}
-            </p>
+      <p>
+        <strong>Sub-location:</strong> {house.sublocation}
+      </p>
 
+      <p>
+        <strong>Type:</strong> {house.type}
+      </p>
 
-            <p>
-              <strong>Landlord:</strong> {house.landlord}
-            </p>
+      <p>
+        <strong>Rent:</strong> KSh {house.rent.toLocaleString()}
+      </p>
 
+      <p>
+        <strong>Landlord:</strong> {house.landlord}
+      </p>
 
-            <p className="available">
-              Status: {house.status}
-            </p>
+      <p
+        className={
+          house.status === "Available"
+            ? "available"
+            : "occupied"
+        }
+      >
+        Status: {house.status}
+      </p>
 
+      <Link to={`/property/${house._id || house.id}`}>
+        <button className="details-btn">
+          View Details
+        </button>
+      </Link>
 
-          </div>
+    </div>
 
+  ))}
 
-        ))}
-
-
-      </div>
-
-
-
-
-      {/* Occupied Houses */}
-
-
-      <h2 className="occupied-title">
-        🔴 Occupied Houses
-      </h2>
-
-
-
-      <div className="vacancy-grid">
-
-
-        {occupiedHouses.map((house)=>(
-
-
-          <div 
-            className="vacancy-card"
-            key={house.id}
-          >
-
-
-            <img
-              src={house.image}
-              alt={house.type}
-            />
-
-
-            <h3>
-              {house.type}
-            </h3>
-
-
-            <p>
-              <strong>Location:</strong> {house.location}
-            </p>
-
-
-            <p>
-              <strong>Rent:</strong> {house.rent}
-            </p>
-
-
-            <p>
-              <strong>Landlord:</strong> {house.landlord}
-            </p>
-
-
-            <p className="occupied">
-              Status: {house.status}
-            </p>
-
-
-          </div>
-
-
-        ))}
-
-
-      </div>
-
-
+</div>
     </section>
 
   );

@@ -1,5 +1,7 @@
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { HouseContext } from "../../context/HouseContext";
+import "./Tenant.css";
 
 function Tenant() {
   const {
@@ -13,9 +15,9 @@ function Tenant() {
 
       <h1>👤 Tenant Dashboard</h1>
 
-      <p>
-        Welcome to your personal dashboard.
-      </p>
+      <p>Welcome to your personal dashboard.</p>
+
+      {/* Summary Cards */}
 
       <div className="dashboard-grid">
 
@@ -38,6 +40,8 @@ function Tenant() {
 
       <hr />
 
+      {/* Favorite Houses */}
+
       <h2>My Favorite Houses</h2>
 
       {favorites.length === 0 ? (
@@ -50,11 +54,14 @@ function Tenant() {
 
           {favorites.map((house) => (
 
-            <div className="dashboard-card" key={house.id}>
+            <div
+              className="dashboard-card"
+              key={house._id || house.id}
+            >
 
               <img
-                src={house.image}
-                alt={house.type}
+                src={house.images?.[0] || house.image}
+                alt={house.title}
                 style={{
                   width: "100%",
                   height: "180px",
@@ -62,13 +69,37 @@ function Tenant() {
                 }}
               />
 
-              <h3>{house.type}</h3>
+              <h3>{house.title}</h3>
 
-              <p><strong>Location:</strong> {house.location}</p>
+              <p>
+                <strong>Location:</strong> {house.location}
+              </p>
 
-              <p><strong>Rent:</strong> {house.rent}</p>
+              <p>
+                <strong>Monthly Rent:</strong> KSh{" "}
+                {Number(house.rent).toLocaleString()}
+              </p>
 
-              <p><strong>Status:</strong> {house.status}</p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      house.status === "Available"
+                        ? "green"
+                        : "red",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {house.status}
+                </span>
+              </p>
+
+              <Link to={`/property/${house._id || house.id}`}>
+                <button className="view-btn">
+                  View Details
+                </button>
+              </Link>
 
             </div>
 
@@ -80,7 +111,11 @@ function Tenant() {
 
       <hr />
 
-      <h2>Viewing Request History</h2>
+      {/* Viewing Requests */}
+
+      <h2>
+        Viewing Request History ({viewingRequests.length})
+      </h2>
 
       {viewingRequests.length === 0 ? (
 
@@ -92,17 +127,41 @@ function Tenant() {
 
           {viewingRequests.map((request) => (
 
-            <div className="dashboard-card" key={request.id}>
+            <div
+              className="dashboard-card"
+              key={request._id || request.id}
+            >
 
-              <h3>{request.name}</h3>
+              <h3>{request.property}</h3>
 
-              <p><strong>Property:</strong> {request.property}</p>
+              <p>
+                <strong>Name:</strong> {request.name}
+              </p>
 
-              <p><strong>Date:</strong> {request.date}</p>
+              <p>
+                <strong>Phone:</strong> {request.phone}
+              </p>
 
-              <p><strong>Phone:</strong> {request.phone}</p>
+              <p>
+                <strong>Date:</strong> {request.date}
+              </p>
 
-              <p><strong>Status:</strong> {request.status}</p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      request.status === "Approved"
+                        ? "green"
+                        : request.status === "Declined"
+                        ? "red"
+                        : "orange",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {request.status}
+                </span>
+              </p>
 
             </div>
 
@@ -112,7 +171,64 @@ function Tenant() {
 
       )}
 
+      {/* Upcoming Viewings */}
+
+      {viewingRequests.some(
+        (request) => request.status === "Approved"
+      ) && (
+        <>
+          <hr />
+
+          <h2>Upcoming Viewings</h2>
+
+          <div className="dashboard-grid">
+
+            {viewingRequests
+              .filter(
+                (request) =>
+                  request.status === "Approved"
+              )
+              .map((request) => (
+
+                <div
+                  className="dashboard-card"
+                  key={request._id || request.id}
+                >
+
+                  <h3>{request.property}</h3>
+
+                  <p>
+                    <strong>Date:</strong> {request.date}
+                  </p>
+
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span
+                      style={{
+                        color: "green",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Approved
+                    </span>
+                  </p>
+
+                  <p>
+                    Please arrive on time for your scheduled
+                    house viewing.
+                  </p>
+
+                </div>
+
+              ))}
+
+          </div>
+        </>
+      )}
+
       <hr />
+
+      {/* Notifications */}
 
       <h2>Notifications</h2>
 
@@ -124,19 +240,29 @@ function Tenant() {
 
         <div className="dashboard-grid">
 
-  {notifications.map((note, index) => (
+          {notifications.map((note, index) => (
 
-    <div className="dashboard-card" key={index}>
+            <div
+              className="dashboard-card"
+              key={index}
+            >
 
-      <h3>🔔 Notification</h3>
+              <h3>🔔 Notification</h3>
 
-      <p>{note}</p>
+              <p
+                style={{
+                  color: "#2563eb",
+                  fontWeight: "500",
+                }}
+              >
+                {note}
+              </p>
 
-    </div>
+            </div>
 
-  ))}
+          ))}
 
-</div>
+        </div>
 
       )}
 

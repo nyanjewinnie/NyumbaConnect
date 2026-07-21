@@ -1,5 +1,5 @@
 import "./PropertyDetails.css";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { HouseContext } from "../../context/HouseContext";
 
@@ -9,8 +9,10 @@ function PropertyDetails() {
   const { houses } = useContext(HouseContext);
 
   const house = houses.find(
-    (item) => item.id === Number(id)
+    (item) => (item._id || item.id) === id
   );
+
+  const [selectedImage, setSelectedImage] = useState(0);
 
   if (!house) {
     return (
@@ -36,44 +38,49 @@ function PropertyDetails() {
 
       <div className="details-container">
 
+        {/* Property Images */}
         <div className="image-gallery">
 
-  <img
-    src={house.image}
-    alt={house.title}
-    className="details-image"
-  />
+          <div className="gallery">
+            <img
+              src={house.images?.[selectedImage] || house.image}
+              alt={house.title}
+              className="gallery-image"
+            />
+          </div>
 
-  {house.images && (
-    <div className="thumbnail-container">
+          {house.images && house.images.length > 1 && (
+            <div className="thumbnail-container">
 
-      {house.images.map((img,index)=>(
+              {house.images.slice(0, 2).map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt={`${house.title} ${index + 1}`}
+                  className={`thumbnail ${
+                    selectedImage === index ? "active-thumbnail" : ""
+                  }`}
+                  onClick={() => setSelectedImage(index)}
+                />
+              ))}
 
-        <img
-          key={index}
-          src={img}
-          alt={`${house.title} ${index}`}
-          className="thumbnail"
-        />
+            </div>
+          )}
 
-      ))}
+        </div>
 
-    </div>
-  )}
-
-</div>
-
+        {/* Property Details */}
         <div className="details-content">
 
           <span
-className={
-house.status === "Available"
-? "status available"
-: "status occupied"
-}
->
-{house.status}
-</span>
+            className={
+              house.status === "Available"
+                ? "status available"
+                : "status occupied"
+            }
+          >
+            {house.status}
+          </span>
 
           <h1>{house.title}</h1>
 
@@ -99,12 +106,12 @@ house.status === "Available"
 
           <p>
             <strong>Monthly Rent:</strong> KSh{" "}
-            {house.rent.toLocaleString()}
+            {Number(house.rent).toLocaleString()}
           </p>
 
           <p>
             <strong>Deposit:</strong> KSh{" "}
-            {house.deposit.toLocaleString()}
+            {Number(house.deposit).toLocaleString()}
           </p>
 
           <p>
@@ -117,16 +124,18 @@ house.status === "Available"
 
           <h3>Amenities</h3>
 
-          <div className="amenities-list">
-
-            {house.amenities.map((item, index) => (
-              <span key={index}>
+          <div className="amenities">
+            {house.amenities?.map((item, index) => (
+              <span
+                key={index}
+                className="amenity"
+              >
                 {item}
               </span>
             ))}
-
           </div>
 
+          {/* Action Buttons */}
           <div className="details-buttons">
 
             <a
@@ -146,15 +155,18 @@ house.status === "Available"
             </a>
 
             <a
-               href={house.mapLink}
-               target="_blank"
-               rel="noreferrer"
-               className="map-btn"
+              href={house.mapLink || "#"}
+              target="_blank"
+              rel="noreferrer"
+              className="map-btn"
             >
-               📍 View on Google Maps
+              📍 View on Google Maps
             </a>
 
-            <Link to="/viewing-request">
+            <Link
+              to="/viewing-request"
+              state={{ property: house.title }}
+            >
               <button className="view-btn">
                 📅 Request Viewing
               </button>

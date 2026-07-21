@@ -314,12 +314,12 @@ filteredHouses.map((house)=>(
 
 <div
 className="result-card"
-key={house.id}
+key={house._id || house.id}
 >
 
 
 <img
-src={house.image}
+src={house.images?.[0] || house.image}
 alt={house.type}
 />
 
@@ -349,7 +349,7 @@ Status: {house.status}
 </p>
 
 
-<Link to={`/property/${house.id}`}>
+<Link to={`/property/${house._id || house.id}`}>
 
 <button>
 View Details

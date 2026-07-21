@@ -23,12 +23,17 @@ function Favorites() {
 
           {favorites.map((house) => (
 
-            <div className="property-card" key={house.id}>
+            <div className="property-card" key={house._id || house.id}>
 
-              <img
-                src={house.image}
-                alt={house.title}
-              />
+            <img
+  src={house.images?.[0] || house.image}
+  alt={house.title}
+  style={{
+    width: "100%",
+    height: "220px",
+    objectFit: "cover",
+  }}
+/>
 
               <div className="property-info">
 
@@ -39,8 +44,8 @@ function Favorites() {
                 </p>
 
                 <p>
-                  <strong>Rent:</strong> KES {house.price}
-                </p>
+  <strong>Rent:</strong> KES {house.rent}
+</p>
 
                 <button>Remove ❤️</button>
 
