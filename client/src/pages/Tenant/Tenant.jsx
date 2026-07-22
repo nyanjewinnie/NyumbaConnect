@@ -21,18 +21,18 @@ function Tenant() {
 
       <div className="dashboard-grid">
 
-        <div className="dashboard-card">
-          <h2>❤️ Favorites</h2>
+        <div className="dashboard-card total-card">
+  <h2>❤️ Favorites</h2>
           <h1>{favorites.length}</h1>
         </div>
 
-        <div className="dashboard-card">
-          <h2>📅 Viewing Requests</h2>
+        <div className="dashboard-card available-card">
+  <h2>📅 Viewing Requests</h2>
           <h1>{viewingRequests.length}</h1>
         </div>
 
-        <div className="dashboard-card">
-          <h2>🔔 Notifications</h2>
+        <div className="dashboard-card occupied-card">
+  <h2>🔔 Notifications</h2>
           <h1>{notifications.length}</h1>
         </div>
 
