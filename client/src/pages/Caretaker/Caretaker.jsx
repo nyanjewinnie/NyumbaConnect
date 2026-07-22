@@ -11,13 +11,13 @@ function Caretaker() {
       <p>Manage house occupancy and vacancy status.</p>
 
       <div className="dashboard-grid">
-        <div className="dashboard-card">
+        <div className="dashboard-card total-card">
           <h2>Total Assigned Houses</h2>
           <h1>{houses.length}</h1>
         </div>
 
-        <div className="dashboard-card">
-          <h2>Available Houses</h2>
+        <div className="dashboard-card available-card">
+  <h2>Available Houses</h2>
           <h1>
             {houses.filter(
               (house) => house.status === "Available"
@@ -25,8 +25,8 @@ function Caretaker() {
           </h1>
         </div>
 
-        <div className="dashboard-card">
-          <h2>Occupied Houses</h2>
+        <div className="dashboard-card occupied-card">
+  <h2>Occupied Houses</h2>
           <h1>
             {houses.filter(
               (house) => house.status === "Occupied"
