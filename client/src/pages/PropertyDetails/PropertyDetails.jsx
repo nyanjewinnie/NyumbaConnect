@@ -145,14 +145,16 @@ function PropertyDetails() {
               📞 Call
             </a>
 
-            <a
-              href={`https://wa.me/254${house.phone.substring(1)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="whatsapp-btn"
-            >
-              💬 WhatsApp
-            </a>
+          <a
+  href={`https://wa.me/${house.phone
+    .replace(/\D/g, "")
+    .replace(/^0/, "254")}`}
+  target="_blank"
+  rel="noreferrer"
+  className="whatsapp-btn"
+>
+  💬 WhatsApp
+</a>
 
             <a
               href={house.mapLink || "#"}
